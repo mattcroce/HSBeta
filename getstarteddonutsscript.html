@@ -22,8 +22,11 @@
     <![endif]-->
 
     <!-- jquery must occur before javascript in order for the carousel to function -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+   
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+    <script src="jquery-ui-slider-pips.js" type="text/javascript"></script> 
 
     <!-- Latest compiled and minified CSS-->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css" rel="stylesheet">
@@ -38,6 +41,8 @@
     <!-- Bootstrap core CSS-->
     <link href="css/bootstrap.css" rel="stylesheet">
 
+    <link href="jquery-ui-slider-pips.css" rel="stylesheet" type="text/css" />
+
     <!-- Custom styles for this template -->
     <link href="css/carousel.css" rel="stylesheet">
 
@@ -45,6 +50,8 @@
     <link href="http://fonts.googleapis.com/css?family=Goudy+Bookletter+1911" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Raleway:100" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="css/jquery.slider.min.css" type="text/css" charset="utf-8">
+
+     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 
     <!--For Google Charts, load the AJAX API.-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -76,13 +83,72 @@ google.setOnLoadCallback(drawVisualization);
       document.getElementById('sliderValue').value=val; 
     }
 
+
+
   </script>
+
+<style>
+#circles-slider.ui-slider {
+  border-radius: 20px;
+  background: #434d5a;
+  border: none;
+  height: 10px;
+  margin: 1em 4em 4em; }
+                    
+#circles-slider .ui-slider-handle {
+  border-radius: 23px;
+  height: 23px;
+  width: 23px;
+  top: -7px;
+  margin-left: -11px;
+  border: 2px solid #fffaf7; }
+                    
+#circles-slider .ui-slider-pip {
+  top: 3px; }
+                    
+  #circles-slider .ui-slider-pip .ui-slider-line {
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    margin-left: -2px;
+    background: #fffaf7; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-last,
+  #circles-slider .ui-slider-pip.ui-slider-pip-first {
+    top: -7px; }
+                    
+    #circles-slider .ui-slider-pip.ui-slider-pip-last .ui-slider-line,
+    #circles-slider .ui-slider-pip.ui-slider-pip-first .ui-slider-line {
+      display: none; }
+                    
+    #circles-slider .ui-slider-pip.ui-slider-pip-last .ui-slider-label,
+    #circles-slider .ui-slider-pip.ui-slider-pip-first .ui-slider-label {
+      margin: 0; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-first .ui-slider-label {
+    left: -2em;
+    text-align: right; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-last .ui-slider-label {
+    left: 2em;
+    text-align: left; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-selected-initial {
+    font-weight: normal; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-selected {
+    font-weight: bold; }
+                    
+  #circles-slider .ui-slider-pip.ui-slider-pip-selected,
+  #circles-slider .ui-slider-pip.ui-slider-pip-selected-initial {
+    color: #434d5a; }
+</style>
+
 </head>
 
 <body>
 
   <div class="container marketing">
-      <!-- Three columns of text below the carousel -->
       <div class="row"></div><!-- /.row -->
       <!-- START THE FEATURETTES -->
       <!-- <hr class="featurette-divider"> -->
@@ -113,11 +179,66 @@ google.setOnLoadCallback(drawVisualization);
               </div>
               <br></br>
               <br></br>
-              <div id ="slider_input">
-                  <input id="slider2" type ="range" name="rangeInput" min ="0" max="30000" step ="500" value="10000" onchange="updateTextInput(this.value)"></input> 
-                  <input id="sliderValue" name="sliderValueInput" type="textbox" value="10000"> </input>
+              
+              <div id="circles-slider"></div>
+              <br></br>
+              <div id="sliderValueDiv">
+              <input id="sliderValue" name="sliderValueInput" type="text" value="15000" onchange"sliderChartUpdate()"> </input>
               </div>
+              <br></br>
               <div id="chart_div"></div>
+              <br></br>
+              <br></br>
+
+              <script>
+              $("#circles-slider").slider({
+                                        max: 30000,
+                                        value: 15000,
+                                        step: 500,
+                                        animate:"slow"
+                                      })
+
+                                  .slider("pips")
+
+                                  .on("slidechange", function( e, ui ) {
+                                  $("#sliderValue").val(ui.value);
+                                  var D4 = ui.value;
+                                  var OOPSpend = (D4-(parseFloat($('#tdDeductible').val())*((parseFloat($('#tdCopay').val()))/100)))+(parseFloat($('#tdDeductible').val()));
+                                  // Create and populate the data table.
+                                  var data = google.visualization.arrayToDataTable([
+                                    ['Plan Name', 'Premium', 'OOP Spending'],
+                                    [ $('#tdPlanNameVal').val(),  parseFloat($('#tdPremiumVal').val()*12),    OOPSpend],
+                                    ['UPMC Advantage Bronze',  3892.56,    10000],
+                                    ['UPMC Advantage Silver',  4358.88,    10000]
+                                    ]);
+                                  // Create and draw the visualization.
+                                  new google.visualization.ColumnChart(document.getElementById('chart_div')).
+                                    draw(data,
+                                         {title:"Annual Healthcare Spending by Plan",
+                                          width:600, height:400,
+                                          vAxis: {title: "Dollars"}, isStacked: true,
+                                          hAxis: {title: "Plan Name"}}
+                                  
+
+                                  );
+
+
+                                  });
+                                  
+
+                                 
+
+
+                                  
+
+              //$('#sliderValue').on('input', function() { 
+              //$(this).val() // get the current value of the input field.
+                //});
+            //alert("input detected");
+          
+
+              </script>
+              
             </div> <!-- end of col-md-8 poop --> 
           <!-- THIRD COLUMN SECTION -->
           <div class="col-md-2"></div>
@@ -127,6 +248,7 @@ google.setOnLoadCallback(drawVisualization);
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
    
       <script type="text/javascript">
+        
         $(document).ready(function () {
           $('button[name="newPlan"]').on('click', function(){
             var table = $('table[name="planCompare"]');
@@ -148,16 +270,16 @@ google.setOnLoadCallback(drawVisualization);
                     $col.append(cols[i]);
                     $row.append($col);
                     }
-                  $table.append($row);        
+                  $table.append($row);       
                       };
-                    });
-                  });
-      
+                    });  
+            });
+            
+            //Initiate algorithm
             $('button[name="medSpendSubmit"]').on('click', function(){
               var D4 = parseFloat($('#sliderValue').val());
               var OOPSpend = (D4-(parseFloat($('#tdDeductible').val())*((parseFloat($('#tdCopay').val()))/100)))+(parseFloat($('#tdDeductible').val()));
 
-              
             // Create and populate the data table.
               var data = google.visualization.arrayToDataTable([
                 ['Plan Name', 'Premium', 'OOP Spending'],
@@ -166,20 +288,51 @@ google.setOnLoadCallback(drawVisualization);
                 ['UPMC Advantage Silver',  4358.88,    10000]
                 ]);
 
-    // Create and draw the visualization.
-    new google.visualization.ColumnChart(document.getElementById('chart_div')).
-      draw(data,
-           {title:"Annual Healthcare Spending by Plan",
-            width:600, height:400,
-            vAxis: {title: "Dollars"}, isStacked: true,
-            hAxis: {title: "Plan Name"}}
-      );
-        $('#medSpend').val('');
-    });
-  google.load("visualization", "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawVisualization);
-            
-</script> 
+            // Create and draw the visualization.
+            new google.visualization.ColumnChart(document.getElementById('chart_div')).
+              draw(data,
+                   {title:"Annual Healthcare Spending by Plan",
+                    width:600, height:400,
+                    vAxis: {title: "Dollars"}, isStacked: true,
+                    hAxis: {title: "Plan Name"}}
+              );
+
+            });
+
+          function sliderChartUpdate() {
+                var D4 = parseFloat($('#sliderValue').val());
+                var OOPSpend = (D4-(parseFloat($('#tdDeductible').val())*((parseFloat($('#tdCopay').val()))/100)))+(parseFloat($('#tdDeductible').val()));
+
+            // Create and populate the data table.
+              var data = google.visualization.arrayToDataTable([
+                ['Plan Name', 'Premium', 'OOP Spending'],
+                [ $('#tdPlanNameVal').val(),  parseFloat($('#tdPremiumVal').val()*12),    OOPSpend],
+                ['UPMC Advantage Bronze',  3892.56,    10000],
+                ['UPMC Advantage Silver',  4358.88,    10000]
+                ]);
+
+            // Create and draw the visualization.
+            new google.visualization.ColumnChart(document.getElementById('chart_div')).
+              draw(data,
+                   {title:"Annual Healthcare Spending by Plan",
+                    width:600, height:400,
+                    vAxis: {title: "Dollars"}, isStacked: true,
+                    hAxis: {title: "Plan Name"}}
+              );
+              }
+
+
+          google.load("visualization", "1", {packages:["corechart"]});
+          google.setOnLoadCallback(drawVisualization);
+
+          
+          
+        
+
+
+
+          
+          </script> 
 
 
 </body>
